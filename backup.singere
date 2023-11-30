@@ -1,59 +1,89 @@
 #!/bin/bash
+#Name: Evan Singer
+#Purpose: Backup script based on a supplied config file
+#Last Revision Date: 11/30/2023
+#Variables:
+#BACKUP_NAME: Name of the backup
+#BACKUP_TARGET: Filesystem target
+#BACKUP_ENTRIES: Array containing backup entries (NAME, DIRECTORY, RECURSIVE, NUM_DAILY, NUM_WEEKLY, NUM_MONTHLY).
+#COMPRESSION: Compression program
+#E_MAIL
+#PASSWORD
+#TARGET_TYPE: Type of filesystem
+#TARGET_SERVER: DNS name of the target
+#TARGET_FS: Filesystem/share/export on the target
+#USER
 
-# Check if the backup name parameter is provided
-if [ -z "$1" ]; then
-    echo "Usage: $0 <backup_name>"
-    exit 1
+
+BACKUP_NAME=$1
+
+CONFIG_FILE="/etc/backup.conf"
+
+
+# Check if the config file exists
+
+if [ ! -f "$CONFIG_FILE" ]; then
+
+  echo "Error: Conf file not found: $CONFIG_FILE"
+
+  exit 1
+
 fi
 
-# Read the configuration file
-config_file="/etc/backup.conf"
 
-# Check if the configuration file exists
-if [ ! -f "$config_file" ]; then
-    echo "Error: Configuration file not found."
-    exit 1
-fi
-
-# Parse the configuration file
 while IFS='=' read -r key value; do
-    # Skip comments and empty lines
-    if [[ $key == #* || -z $key ]]; then
-        continue
-    fi
 
-    # Trim leading and trailing whitespaces
-    key=$(echo "$key" | tr -d '[:space:]')
-    value=$(echo "$value" | tr -d '[:space:]')
+  case "$key" in
 
-    # Set variables based on configuration file items
-    case "$key" in
-        "COMPRESSION"|"E_MAIL"|"BACKUP_TARGET"|"TARGET_TYPE"|"TARGET_SERVER"|"TARGET_FS"|"USER"|"PASSWORD")
-            eval "$key=$value"
-            ;;
-        *)
-            echo "Error: Invalid variable found in the configuration file."
-            exit 1
-            ;;
-    esac
-done < "$config_file"
+    "COMPRESSION"|"E_MAIL"|"BACKUP_TARGET"|"TARGET_TYPE"|"TARGET_SERVER"|"TARGET_FS"|"USER"|"PASSWORD")
 
-# Extract backup name information
-backup_info=$(grep "$1" "$config_file" | cut -d ':' -f 2-)
+      eval "$key=$value"
 
-# Check if the specified backup name exists
-if [ -z "$backup_info" ]; then
-    echo "Error: Backup name not found in the configuration file."
-    exit 1
+      ;;
+
+    *)
+
+      ;;
+
+  esac
+
+done < "$CONFIG_FILE"
+
+
+mapfile -t BACKUP_ENTRIES < <(grep -E "^$BACKUP_NAME:" "$CONFIG_FILE" | cut -d: -f2-)
+
+
+
+if [ ${#BACKUP_ENTRIES[@]} -eq 0 ]; then
+
+  echo "Error: backup entry '$BACKUP_NAME' not found."
+
+#  exit 1
+
 fi
 
-echo variable name and content for all variables
+
+echo "BACKUP_NAME=$BACKUP_NAME"
+
 echo "COMPRESSION=$COMPRESSION"
+
 echo "E_MAIL=$E_MAIL"
+
 echo "BACKUP_TARGET=$BACKUP_TARGET"
+
 echo "TARGET_TYPE=$TARGET_TYPE"
+
 echo "TARGET_SERVER=$TARGET_SERVER"
+
 echo "TARGET_FS=$TARGET_FS"
+
 echo "USER=$USER"
+
 echo "PASSWORD=$PASSWORD"
-echo "Backup Information for $1: $backup_info"
+
+
+for entry in "${BACKUP_ENTRIES[@]}"; do
+
+  echo "BACKUP_ENTRY=$entry"
+
+done
