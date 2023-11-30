@@ -41,13 +41,13 @@ done < "$config_file"
 # Extract backup name information
 backup_info=$(grep "$1" "$config_file" | cut -d ':' -f 2-)
 
-Check if the specified backup name exists
+# Check if the specified backup name exists
 if [ -z "$backup_info" ]; then
     echo "Error: Backup name not found in the configuration file."
     exit 1
 fi
 
-Echo variable name and content for all variables
+echo variable name and content for all variables
 echo "COMPRESSION=$COMPRESSION"
 echo "E_MAIL=$E_MAIL"
 echo "BACKUP_TARGET=$BACKUP_TARGET"
