@@ -1,0 +1,59 @@
+#!/bin/bash
+
+Check if the backup name parameter is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <backup_name>"
+    exit 1
+fi
+
+Read the configuration file
+config_file="/etc/backup.conf"
+
+Check if the configuration file exists
+if [ ! -f "$config_file" ]; then
+    echo "Error: Configuration file not found."
+    exit 1
+fi
+
+Parse the configuration file
+while IFS='=' read -r key value; do
+    # Skip comments and empty lines
+    if [[ $key == #* || -z $key ]]; then
+        continue
+    fi
+
+    # Trim leading and trailing whitespaces
+    key=$(echo "$key" | tr -d '[:space:]')
+    value=$(echo "$value" | tr -d '[:space:]')
+
+    # Set variables based on configuration file items
+    case "$key" in
+        "COMPRESSION"|"E_MAIL"|"BACKUP_TARGET"|"TARGET_TYPE"|"TARGET_SERVER"|"TARGET_FS"|"USER"|"PASSWORD")
+            eval "$key=$value"
+            ;;
+        *)
+            echo "Error: Invalid variable found in the configuration file."
+            exit 1
+            ;;
+    esac
+done < "$config_file"
+
+Extract backup name information
+backup_info=$(grep "$1" "$config_file" | cut -d ':' -f 2-)
+
+Check if the specified backup name exists
+if [ -z "$backup_info" ]; then
+    echo "Error: Backup name not found in the configuration file."
+    exit 1
+fi
+
+Echo variable name and content for all variables
+echo "COMPRESSION=$COMPRESSION"
+echo "E_MAIL=$E_MAIL"
+echo "BACKUP_TARGET=$BACKUP_TARGET"
+echo "TARGET_TYPE=$TARGET_TYPE"
+echo "TARGET_SERVER=$TARGET_SERVER"
+echo "TARGET_FS=$TARGET_FS"
+echo "USER=$USER"
+echo "PASSWORD=$PASSWORD"
+echo "Backup Information for $1: $backup_info"
