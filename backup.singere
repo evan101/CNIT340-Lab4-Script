@@ -14,11 +14,9 @@
 #TARGET_FS: Filesystem/share/export on the target
 #USER
 
-
 BACKUP_NAME=$1
 
 CONFIG_FILE="/etc/backup.conf"
-
 
 # Check if the config file exists
 
@@ -29,7 +27,6 @@ if [ ! -f "$CONFIG_FILE" ]; then
   exit 1
 
 fi
-
 
 while IFS='=' read -r key value; do
 
@@ -52,8 +49,6 @@ done < "$CONFIG_FILE"
 
 mapfile -t BACKUP_ENTRIES < <(grep -E "^$BACKUP_NAME:" "$CONFIG_FILE" | cut -d: -f2-)
 
-
-
 if [ ${#BACKUP_ENTRIES[@]} -eq 0 ]; then
 
   echo "Error: backup entry '$BACKUP_NAME' not found."
@@ -61,7 +56,6 @@ if [ ${#BACKUP_ENTRIES[@]} -eq 0 ]; then
 #  exit 1
 
 fi
-
 
 echo "BACKUP_NAME=$BACKUP_NAME"
 
@@ -80,7 +74,6 @@ echo "TARGET_FS=$TARGET_FS"
 echo "USER=$USER"
 
 echo "PASSWORD=$PASSWORD"
-
 
 for entry in "${BACKUP_ENTRIES[@]}"; do
 
