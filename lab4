@@ -1,21 +1,21 @@
 #!/bin/bash
 
-//Check if the backup name parameter is provided
+# Check if the backup name parameter is provided
 if [ -z "$1" ]; then
     echo "Usage: $0 <backup_name>"
     exit 1
 fi
 
-//Read the configuration file
+# Read the configuration file
 config_file="/etc/backup.conf"
 
-//Check if the configuration file exists
+# Check if the configuration file exists
 if [ ! -f "$config_file" ]; then
     echo "Error: Configuration file not found."
     exit 1
 fi
 
-//Parse the configuration file
+# Parse the configuration file
 while IFS='=' read -r key value; do
     # Skip comments and empty lines
     if [[ $key == #* || -z $key ]]; then
@@ -38,7 +38,7 @@ while IFS='=' read -r key value; do
     esac
 done < "$config_file"
 
-//Extract backup name information
+# Extract backup name information
 backup_info=$(grep "$1" "$config_file" | cut -d ':' -f 2-)
 
 Check if the specified backup name exists
