@@ -1,53 +1,53 @@
 #!/bin/bash
 # Name: Evan Singer
-# Purpose: Backup script based on a supplied config file
-# Last Revision Date: 11/30/2023
+# Purpose: Backup script for the provided config
+# Last Revision Date: 12/01/2023
 
 # Variables:
-# BACKUP_NAME: Name of the backup
+# BACKUP_NAME: backup name
 # BACKUP_TARGET: Filesystem target
-# BACKUP_ENTRIES: Array containing backup entries (NAME, DIRECTORY, RECURSIVE, NUM_DAILY, NUM_WEEKLY, NUM_MONTHLY).
+# BACKUP_ENTRIES: ackup entries (NAME, DIRECTORY, RECURSIVE, NUM_DAILY, NUM_WEEKLY, NUM_MONTHLY).
 # COMPRESSION: Compression program
 # E_MAIL
 # PASSWORD
-# TARGET_TYPE: Type of filesystem
-# TARGET_SERVER: DNS name of the target
-# TARGET_FS: Filesystem/share/export on the target
+# TARGET_TYPE: filesystem type
+# TARGET_SERVER: DNS of the target
+# TARGET_FS: share on the target
 # USER
 
-# Read the backup name from the command line argument
+# Backup name from the command line argument
 BACKUP_NAME=$1
 
-# Path to the configuration file
+# Configuration file path
 CONFIG_FILE="/etc/backup.conf"
 
-# Check if the config file exists
+# Config file exists check
 if [ ! -f "$CONFIG_FILE" ]; then
   echo "Error: Config file not found: $CONFIG_FILE"
   exit 1
 fi
 
-# Read and parse the configuration file
+# Parse the configuration file
 while IFS='=' read -r key value; do
   case "$key" in
     "COMPRESSION"|"E_MAIL"|"BACKUP_TARGET"|"TARGET_TYPE"|"TARGET_SERVER"|"TARGET_FS"|"USER"|"PASSWORD")
-      eval "$key=$value"  # Set variables based on the key-value pairs in the config file
+      eval "$key=$value"  # Key-value pairs in the config file
       ;;
     *)
       ;;
   esac
 done < "$CONFIG_FILE"
 
-# Fetch backup entries for the specified backup name
+# Backup entries for the backup 
 mapfile -t BACKUP_ENTRIES < <(grep -E "^$BACKUP_NAME:" "$CONFIG_FILE" | cut -d: -f2-)
 
-# Check if the backup entry exists
+# Check if backup entry exists
 if [ ${#BACKUP_ENTRIES[@]} -eq 0 ]; then
   echo "Error: Backup entry '$BACKUP_NAME' not found."
-  # exit 1  # Uncomment this line if you want to exit on error
+  # exit 1 
 fi
 
-# Print the parsed configuration values
+# Parsed configuration values
 echo "BACKUP_NAME=$BACKUP_NAME"
 echo "COMPRESSION=$COMPRESSION"
 echo "E_MAIL=$E_MAIL"
@@ -58,7 +58,7 @@ echo "TARGET_FS=$TARGET_FS"
 echo "USER=$USER"
 echo "PASSWORD=$PASSWORD"
 
-# Print each backup entry for the specified backup name
+# Print each backup entry 
 for entry in "${BACKUP_ENTRIES[@]}"; do
   echo "BACKUP_ENTRY=$entry"
 done
